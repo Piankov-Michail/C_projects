@@ -1,0 +1,1 @@
+{"commands":[{"first":-1,"second":"start"},{"first":2,"second":"load"},{"first":3,"second":"ability"},{"first":1,"second":"save"},{"first":-2,"second":"exit"},{"first":8,"second":"print map"},{"first":9,"second":"print fog"},{"first":7,"second":"shoot"}]}

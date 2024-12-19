@@ -17,19 +17,30 @@
 #define START_GAME_MSG "You start game!"
 #define MAP_SIZE_SETTING "Put game map size [x y]"
 #define ROUND_START "Your round number: "
-#define SHIPS_ADDITION_MSG "Input ships count then input their type in [BOAT, FRIGATE, CORVETTE, BATTLESHIP]"
-#define INVALID_SHIP_LENGTH "Ship type error!"
+//#define SHIPS_ADDITION_MSG "Input ships count then input their type in [BOAT, FRIGATE, CORVETTE, BATTLESHIP]"
+//#define INVALID_SHIP_LENGTH "Ship type error!"
 
 class Game
 {
     public:
         Game();
-        void Start_Game();
-        void Try();
-        void Make_Step();
+        void Start_Game(int x, int y);
         void Load_Game();
         void Save_Game();
         void Save_State();
+
+        void Place_Ship(int x , int y, int ort);
+        void Make_Step();
+        void Try();
+        void Computer_Step();
+        int Make_Shoot(int x, int y);
+        void Use_Ability(int x, int y);
+        int Get_Step();
+        int Get_Try();
+        bool End();
+        bool Computer_Lose();
+
+        Game_State* Get_Game_State();
     private:
         void Load_State();
         int x, y;

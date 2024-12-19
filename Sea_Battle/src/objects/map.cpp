@@ -1,4 +1,5 @@
 #include "map.hpp"
+#include<algorithm>
 
 Map::Map(int x, int y) : x(0), y(0)
 {
@@ -156,7 +157,6 @@ void Map::Print_Fog_Of_War()
 }
 int Map::Make_Shoot(int x_coord, int y_coord)
 {
-    try{
     x_coord -= 1;
     y_coord -= 1;
     if(x_coord < 0 || x_coord >= this->x || y_coord < 0 || y_coord >= this->y)
@@ -179,21 +179,16 @@ int Map::Make_Shoot(int x_coord, int y_coord)
                 this->multiplier = false;
                 if(i->second.first->Is_Defeat() && flag)
                     this->Give_New_Ability();
+                this->Display_Ships();
                 return 1;
             }
-                
         }
     }
     std::cout<<MISS<<std::endl;
     this->multiplier = false;
-    this->fog_of_war[x_coord][y_coord] = '.';}
-    catch(Coordinates_Error error)
-    {
-        std::cerr<<error.what()<<" On coords: "<<"x: "<<error.Get_x() + 1<<" "<<" y: "<<error.Get_y() + 1<<std::endl;
-        return -1;
-    }
+    this->fog_of_war[x_coord][y_coord] = '.';
+    this->Display_Ships();
     return 0;
-    
 }
 void Map::Add_Ships(std::vector<Ship*> ship_data)
 {
@@ -204,20 +199,17 @@ void Map::Add_Abilities(std::queue<Interface*>*abilities)
 {
     this->abilities = abilities;
 }
-void Map::Use_Ability()
+void Map::Use_Ability(int x, int y)
 {
-    try{
     if(this->abilities == nullptr || this->abilities->empty() ||  this->abilities->size() == 0)
     {
         throw(Ability_Error(ABILITY_ERROR));
     }
     Interface* current_ability = this->abilities->front();
-    current_ability->Print_Ability_Info();
+    if(current_ability->Get_Type() != SCANNER)
+        current_ability->Print_Ability_Info();
     if(current_ability->Is_Inputable())
     {
-        int x, y;
-        std::cout<<SCANNER_INPUT<<std::endl;
-        std::cin>>x>>y;
         x --; y --;
         if(x < 0 || x > this->x || y < 0 || y > this->y)
         {
@@ -238,15 +230,8 @@ void Map::Use_Ability()
     {
         this->Give_New_Ability();
         this->destroyed_ships_count = new_destroyed_ships_count;
-    }}
-    catch(Ability_Error error)
-    {
-        std::cerr<<error.what()<<std::endl;
     }
-    catch(Coordinates_Error error)
-    {
-        std::cerr<<error.what()<<" On coords: x: "<<error.Get_x() + 1<<" y: "<<error.Get_y() + 1<<std::endl;
-    }
+    this->Display_Ships();
 }
 Map::~Map()
 {
@@ -263,72 +248,47 @@ Map::~Map()
     this->fill_area.clear();
     this->fill_area = std::map< std::pair<int, int>, bool >();
 }
-void Map::Place_Ships()
+void Map::Place_Ship(int x, int y, int ort)
 {
-    int i = 0;
-    int x, y;
-    int ort;
-    std::cout<<PLACING_SHIPS_MESSAGE<<std::endl;
-    while(i != this->ship_data.size())
+    int i = this->ship_positions.size();
+    if(x <= 0 || x > this->x || y <= 0 || y > this->y)
     {
-        this->Print_Map();
-
-        std::cout<<"Current ship length: "<<ship_data[i]->Get_Length()<<std::endl;
-        std::cout<<"Ships left: "<<ship_data.size() - i<<std::endl;
-        std::cout<<"Their sizes: ";
-        for(int j = i; j != ship_data.size(); j++)
-            std::cout<<static_cast<int>(ship_data[j]->Get_Length())<<" ";
-        std::cout<<std::endl;
-
-        std::cin>>x>>y>>ort;
-        try{
-        if(x <= 0 || x > this->x || y <= 0 || y > this->y)
+        throw(Coordinates_Error(SHIP_COORD_ERROR, x, y));
+    }
+    else
+    {
+        if(ort == 0)
         {
-            throw(Coordinates_Error(SHIP_COORD_ERROR, x, y));
-        }
-        else
-        {
-            if(ort == 0)
+            if(Valid_Coords(x, y, ship_data[i]->Get_Length(), HORZ))
             {
-                if(Valid_Coords(x, y, ship_data[i]->Get_Length(), HORZ))
-                {
-                    this->ship_positions.push_back({std::make_pair(x-1, y-1), std::make_pair(ship_data[i], HORZ)});
-                    Fill_Area(x, y, ship_data[i]->Get_Length(), HORZ);
-                    i++;
-                }
-                else
-                {
-                    throw(Orientation_Error(SHIP_PLACE_ERROR, x, y, HORZ));
-                }
-            }  
-            else if(ort == 1)
-            {
-                if(Valid_Coords(x, y, ship_data[i]->Get_Length(), VERT))
-                {
-                    this->ship_positions.push_back({std::make_pair(x-1, y-1), std::make_pair(ship_data[i], VERT)});
-                    Fill_Area(x, y, ship_data[i]->Get_Length(), VERT);
-                    i++;
-                }
-                else
-                {
-                    throw(Orientation_Error(SHIP_PLACE_ERROR, x, y, VERT));
-                }
+                this->ship_positions.push_back({std::make_pair(x-1, y-1), std::make_pair(ship_data[i], HORZ)});
+                Fill_Area(x, y, ship_data[i]->Get_Length(), HORZ);
+                i++;
             }
             else
             {
-                throw(Orientation_Error(SHIP_ORIENTATION_ERROR, x, y, WRONG));
+                throw(Orientation_Error(SHIP_PLACE_ERROR, x, y, HORZ));
             }
-        }}
-        catch(Coordinates_Error error)
+        }  
+        else if(ort == 1)
         {
-            std::cerr<<error.what()<<" On coords: x: "<<error.Get_x()<<" y: "<<error.Get_y()<<std::endl;
+            if(Valid_Coords(x, y, ship_data[i]->Get_Length(), VERT))
+            {
+                this->ship_positions.push_back({std::make_pair(x-1, y-1), std::make_pair(ship_data[i], VERT)});
+                Fill_Area(x, y, ship_data[i]->Get_Length(), VERT);
+                i++;
+            }
+            else
+            {
+                throw(Orientation_Error(SHIP_PLACE_ERROR, x, y, VERT));
+            }
         }
-        catch(Orientation_Error error)
+        else
         {
-            std::cerr<<error.what()<<" On: x: "<<error.Get_x()<<" y: "<<error.Get_y()<<" orientation: "<<error.Get_Orientation()<<std::endl;
+            throw(Orientation_Error(SHIP_ORIENTATION_ERROR, x, y, WRONG));
         }
     }
-    //this->Print_Map();
+    this->Display_Ships();
 }
 void Map::Auto_Place_Ships()
 {

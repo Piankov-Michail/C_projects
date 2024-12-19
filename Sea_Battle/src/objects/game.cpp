@@ -342,180 +342,79 @@ Game::Game()
 {
     this->step = -1;
 }
-void Game::Start_Game()
+void Game::Start_Game(int x, int y)
 {
-    this->try_number = 1;
-    std::cout<<START_GAME_MSG<<std::endl;
-    std::cout<<MAP_SIZE_SETTING<<std::endl;
-    std::cin>>this->x>>this->y;
-
-    Player_Map = new Map(this->x, this->y);
-
-    this->Temp_Ship_manager = new Ship_manager(0,{});
-    std::cout<<SHIPS_ADDITION_MSG<<std::endl;
-    int ships_count = 0;
-    std::string ship_type;
-    std::cin>>ships_count;
-    while(ships_count > 0)
-    {
-        std::cin>>ship_type;
-        if(!ship_type.compare("BOAT"))
-            this->Temp_Ship_manager->Add_Ships(1, {BOAT});
-        else if(!ship_type.compare("CORVETTE"))
-            this->Temp_Ship_manager->Add_Ships(1, {CORVETTE});
-        else if(!ship_type.compare("FRIGATE"))
-            this->Temp_Ship_manager->Add_Ships(1, {FRIGATE});
-        else if(!ship_type.compare("BATTLESHIP"))
-            this->Temp_Ship_manager->Add_Ships(1, {BATTLE_SHIP});
-        else
-        {
-            ships_count++;
-            std::cout<<INVALID_SHIP_LENGTH<<std::endl;
-            std::cout<<"Make another try!"<<std::endl;
-        }
-        ships_count--;
-    }
+    this->try_number = 0;
+    this->x = x;
+    this->y = y;
+    this->Player_Map = new Map(this->x, this->y);
+    this->Temp_Ship_manager = new Ship_manager(1, {BOAT});
     this->Player_Ship_manager = new Ship_manager(*this->Temp_Ship_manager);
-    this->Player_Map->Add_Ships(Player_Ship_manager->Get_Ships());
-    this->Player_Map->Place_Ships();
+    this->Player_Map->Add_Ships(this->Player_Ship_manager->Get_Ships());
+    this->Computer_Map = new Map(x, y);
     this->Player_Ability_manager = new Abilities_manager();
-    Abilities_manager* Computer_Ability_manager = new Abilities_manager();
-    while(!Player_Ship_manager->All_Destroyed())
-    {
-        std::cout<<"Your map:"<<std::endl;
-        this->Player_Map->Print_Map();
-        std::cout<<"Try number: "<<try_number<<std::endl;
-        this->Computer_Map = new Map(x, y);
-        this->Computer_Ship_manager = new Ship_manager(*this->Temp_Ship_manager);
-        this->Player_Map->Add_Abilities(Computer_Ability_manager->Get_Abilities());
-        this->Computer_Map->Add_Abilities(Player_Ability_manager->Get_Abilities());
-        this->Computer_Map->Add_Ships(Computer_Ship_manager->Get_Ships());
-        this->Computer_Map->Auto_Place_Ships();
-        this->Try();
-        this->try_number++;
-    }
+    this->Computer_Map->Add_Abilities(Player_Ability_manager->Get_Abilities());
+    this->Computer_Ship_manager = new Ship_manager(*this->Temp_Ship_manager);
+    this->Save_State();
+}
+void Game::Place_Ship(int x , int y, int ort)
+{
+    this->Player_Map->Place_Ship(x, y, ort);
+    this->Save_State();
+}
+int Game::Make_Shoot(int x, int y)
+{
+    int flag = this->Computer_Map->Make_Shoot(x, y);
+    this->Save_State();
+    return flag;
+}
+void Game::Make_Step()
+{
+    this->step++;
+    this->Save_State();
 }
 void Game::Try()
+{
+    this->try_number++;
+    this->Computer_Map = new Map(x, y);
+    this->Computer_Ship_manager = new Ship_manager(*this->Temp_Ship_manager);
+    this->Computer_Map->Add_Abilities(this->Player_Ability_manager->Get_Abilities());
+    this->Computer_Map->Add_Ships(Computer_Ship_manager->Get_Ships());
+    this->Computer_Map->Auto_Place_Ships();
+    this->Save_State();
+}
+void Game::Computer_Step()
 {
     static std::random_device rd;
     static std::mt19937 rng(rd());
     std::uniform_int_distribution<int> dist(1,1000);
-    this->step = 1;
-    std::string s;
-    int x, y;
-    this->Computer_Map->Print_Fog_Of_War();
-    while(!Player_Ship_manager->All_Destroyed() && !Computer_Ship_manager->All_Destroyed())
-    {
-        this->Save_State();
-        if(step)
-        {
-            bool ability_flag = false;
-            std::cout<<"Your turn:"<<std::endl;
-            std::cout<<"If you want shoot input [shoot] and then input coordinates or if you want use ability input [ability] if you want save input [save], if you want exit input [exit]"<<std::endl;
-            while(true)
-            {
-                std::cin>>s;
-                if(!s.compare("ability") && !ability_flag)
-                {
-                    Computer_Map->Use_Ability();
-                    this->Computer_Map->Print_Fog_Of_War();
-                    ability_flag = true;
-                    std::cout<<"You used ability, you can make shoot!"<<std::endl;
-                }
-                else if(!s.compare("ability") && ability_flag)
-                {
-                    std::cout<<"You have already used one ability!"<<std::endl;
-                }
-                else if(!s.compare("shoot"))
-                {
-                    std::cout<<"Input shoot coords like [x y]"<<std::endl;
-                    while(true)
-                    {
-                        std::cin>>x>>y;
-                        if(x > this->x || x <= 0 || y > this->y || y <= 0)
-                        {
-                            std::cout<<x<<" "<<this->x<<" "<<y<<" "<<this->y<<std::endl;
-                            std::cout<<SHOOT_ERROR<<std::endl;
-                        }
-                        else
-                        {
-                            this->Computer_Map->Make_Shoot(x, y);
-                            this->Computer_Map->Print_Fog_Of_War();
-                            break;
-                        }
-                    }
-                    break;
-                }
-                else if(!s.compare("save"))
-                {
-                    this->Save_Game();
-                    std::cout<<"Game saving"<<std::endl;
-                }
-                else if(!s.compare("exit"))
-                {
-                    exit(1);
-                }
-                else
-                {
-                    std::cout<<"command error, make another try!"<<std::endl;
-                }
-            }
-            step = 0;
-        }
-        else
-        {
-            x = (dist(rng) % this->x) + 1;
-            y = (dist(rng) % this->y) + 1;
-            std::cout<<x<<" "<<y<<std::endl;
-            std::cout<<"Computer turn:"<<std::endl;
-            this->Player_Map->Make_Shoot(x, y);
-            step = 1;
-        }
-    }
-    if(this->Player_Ship_manager->All_Destroyed())
-    {
-        std::cout<<"Game over!"<<std::endl;
-    }
-    else
-    {
-        std::cout<<"You win!"<<std::endl;
-    }
+    int x_coord = (dist(rng) % this->x) + 1;
+    int y_coord = (dist(rng) % this->y) + 1;
+    std::cout<<"Computer turn:"<<std::endl;
+    std::cout<<x_coord<<" "<<y_coord<<std::endl;
+    this->Player_Map->Make_Shoot(x_coord, y_coord);
+    //this->step++;
+    this->Save_State();
+}
+bool Game::End()
+{
+    return this->Player_Ship_manager->All_Destroyed();
+}
+bool Game::Computer_Lose()
+{
+    return this->Computer_Ship_manager->All_Destroyed();
+}
+void Game::Use_Ability(int x, int y)
+{
+    Computer_Map->Use_Ability(x, y);
+    this->Save_State();
 }
 void Game::Load_Game()
 {
     this->Load_State();
-    std::cout<<"Your map:"<<std::endl;
-    this->Player_Map->Print_Map();
-    if(this->step != -1)
-    {
-        std::cout<<"Try number: "<<try_number<<std::endl;
-        this->Try();
-        this->try_number++;
-    }
-    while(!Player_Ship_manager->All_Destroyed())
-    {
-        std::cout<<"Your map:"<<std::endl;
-        this->Player_Map->Print_Map();
-        std::cout<<"Try number: "<<try_number<<std::endl;
-        this->Computer_Map = new Map(x, y);
-        this->Computer_Ship_manager = new Ship_manager(*this->Temp_Ship_manager);
-        this->Player_Ability_manager = new Abilities_manager();
-        Abilities_manager* Computer_Ability_manager = new Abilities_manager();
-        this->Player_Map->Add_Abilities(Computer_Ability_manager->Get_Abilities());
-        this->Computer_Map->Add_Abilities(Player_Ability_manager->Get_Abilities());
-        this->Computer_Map->Add_Ships(Computer_Ship_manager->Get_Ships());
-        this->Computer_Map->Auto_Place_Ships();
-        this->Try();
-        this->try_number++;
-    }
 }
 void Game::Save_Game()
 {
-    /*
-    this->Save_State();
-    std::ofstream fou2("saves/input.txt");
-    fou2<<this->state;
-    fou2.close();*/
     this->game_saver.save("saves/save.json", state);
 }
 void Game::Save_State()
@@ -544,14 +443,6 @@ void Game::Save_State()
 }
 void Game::Load_State()
 {
-    /*
-    std::ifstream fin1("saves/input.txt");
-    Game_State test_state;
-    fin1>>test_state;
-    fin1.close();
-    std::ofstream fou1("saves/output.txt");
-    fou1<<test_state;
-    fou1.close();*/
     Game_State new_state = game_saver.load("saves/save.json");
 
     this->state = new_state;
@@ -595,6 +486,18 @@ void Game::Load_State()
     this->Computer_Map->Set_Map_Data(new_computer_map_data);
     this->Computer_Map->Add_Ships(this->Computer_Ship_manager->Get_Ships());
     this->Computer_Map->Add_Abilities(this->Player_Ability_manager->Get_Abilities());
+}
+Game_State* Game::Get_Game_State()
+{
+    return &(this->state);
+}
+int Game::Get_Step()
+{
+    return this->step;
+}
+int Game::Get_Try()
+{
+    return this->try_number;
 }
 inline int x,y;
 inline int step;

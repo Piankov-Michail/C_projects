@@ -6,11 +6,6 @@
 #include "../abilities/interface.hpp"
 #include "../exceptions/exceptions.hpp"
 #include "../abilities/ability_manager.hpp"
-#include <algorithm>
-#include<iomanip>
-#include<vector>
-#include<iostream>
-#include<queue>
 
 enum SEGMENTS_DISPLAY
 {
@@ -24,6 +19,11 @@ enum MAP_DISPLAY
     NOTHING = 46,
     FOG = 126
 };
+
+#include<iomanip>
+#include<vector>
+#include<iostream>
+#include<queue>
 
 #define NOTHING_IMG "Nothing to image!"
 #define SHIP_COORD_ERROR "Ship coordinates error!"
@@ -59,9 +59,9 @@ class Map
         int Make_Shoot(int x_coord, int y_coord);
         void Add_Ships(std::vector<Ship*> ship_data);
         void Add_Abilities(std::queue<Interface*>*abilities);
-        void Place_Ships();
+        void Place_Ship(int x, int y, int ort);
         void Auto_Place_Ships();
-        void Use_Ability();
+        void Use_Ability(int x, int y);
         void Set_Map_Data(Map_Data map_data);
         Map_Data Get_Map_Data();
         ~Map();

@@ -49,4 +49,10 @@ class Ability_Error: public Exceptions
         Ability_Error(std::string message): Exceptions(message) {};
 };
 
+class Command_Error: public Exceptions
+{
+    public:
+        Command_Error(std::string message): Exceptions(message) {};
+};
+
 #endif //__EXCEPTION_CLASS_H__

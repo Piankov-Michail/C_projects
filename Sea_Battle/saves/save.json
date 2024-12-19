@@ -1,0 +1,244 @@
+{
+    "computer_fill_area": {
+        "fill_area": [
+            {
+                "using": true,
+                "x": 1,
+                "y": 0
+            },
+            {
+                "using": true,
+                "x": 1,
+                "y": 1
+            },
+            {
+                "using": true,
+                "x": 1,
+                "y": 2
+            },
+            {
+                "using": true,
+                "x": 2,
+                "y": 0
+            },
+            {
+                "using": true,
+                "x": 2,
+                "y": 1
+            },
+            {
+                "using": true,
+                "x": 2,
+                "y": 2
+            },
+            {
+                "using": true,
+                "x": 3,
+                "y": 0
+            },
+            {
+                "using": true,
+                "x": 3,
+                "y": 1
+            },
+            {
+                "using": true,
+                "x": 3,
+                "y": 2
+            }
+        ]
+    },
+    "computer_fog_of_war": [
+        [
+            46,
+            126,
+            126
+        ],
+        [
+            126,
+            46,
+            126
+        ],
+        [
+            126,
+            126,
+            126
+        ]
+    ],
+    "computer_game_map": [
+        [
+            126,
+            126,
+            126
+        ],
+        [
+            50,
+            126,
+            126
+        ],
+        [
+            126,
+            126,
+            126
+        ]
+    ],
+    "computer_ship_data": {
+        "ship_data": [
+            {
+                "cells": [
+                    {
+                        "segment": 2,
+                        "user_action": false
+                    }
+                ],
+                "length": 1
+            }
+        ]
+    },
+    "computer_ship_positions": {
+        "ship_positions": [
+            {
+                "orientation": 0,
+                "x": 1,
+                "y": 0
+            }
+        ]
+    },
+    "player_abilities": {
+        "ability_data": [
+            {
+                "ability": 3
+            },
+            {
+                "ability": 1
+            },
+            {
+                "ability": 2
+            }
+        ]
+    },
+    "player_destroyed_ships_count": 0,
+    "player_fill_area": {
+        "fill_area": [
+            {
+                "using": true,
+                "x": 0,
+                "y": 0
+            },
+            {
+                "using": true,
+                "x": 0,
+                "y": 1
+            },
+            {
+                "using": true,
+                "x": 0,
+                "y": 2
+            },
+            {
+                "using": true,
+                "x": 1,
+                "y": 0
+            },
+            {
+                "using": true,
+                "x": 1,
+                "y": 1
+            },
+            {
+                "using": true,
+                "x": 1,
+                "y": 2
+            },
+            {
+                "using": true,
+                "x": 2,
+                "y": 0
+            },
+            {
+                "using": true,
+                "x": 2,
+                "y": 1
+            },
+            {
+                "using": true,
+                "x": 2,
+                "y": 2
+            }
+        ]
+    },
+    "player_fog_of_war": [
+        [
+            49,
+            126,
+            46
+        ],
+        [
+            126,
+            126,
+            126
+        ],
+        [
+            126,
+            126,
+            126
+        ]
+    ],
+    "player_game_map": [
+        [
+            49,
+            126,
+            126
+        ],
+        [
+            126,
+            126,
+            126
+        ],
+        [
+            126,
+            126,
+            126
+        ]
+    ],
+    "player_multiplier": false,
+    "player_ship_data": {
+        "ship_data": [
+            {
+                "cells": [
+                    {
+                        "segment": 1,
+                        "user_action": true
+                    }
+                ],
+                "length": 1
+            }
+        ]
+    },
+    "player_ship_positions": {
+        "ship_positions": [
+            {
+                "orientation": 1,
+                "x": 0,
+                "y": 0
+            }
+        ]
+    },
+    "step": -1,
+    "temp_ship_data": {
+        "ship_data": [
+            {
+                "cells": [
+                    {
+                        "segment": 2,
+                        "user_action": false
+                    }
+                ],
+                "length": 1
+            }
+        ]
+    },
+    "try_number": 1,
+    "x": 3,
+    "y": 3
+}
